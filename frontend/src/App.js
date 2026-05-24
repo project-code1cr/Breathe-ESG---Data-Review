@@ -31,7 +31,7 @@ function App() {
         const isValidStoredCompany = companiesList.some((company) => company.id === storedCompany);
         if (isValidStoredCompany) {
           setSelectedCompany(storedCompany);
-        } else if (selectedCompany && !companiesList.some((company) => company.id === selectedCompany)) {
+        } else {
           setSelectedCompany(null);
           localStorage.removeItem('breathe_selected_company');
         }
