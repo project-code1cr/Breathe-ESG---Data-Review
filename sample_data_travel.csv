@@ -1,0 +1,7 @@
+Expense_ID,Category,Date,Origin,Destination,Distance_km,Class_of_Service,Duration_Nights,Vendor_Name
+EXP-001,Airfare,2026-05-10,ORD,SEA,2100,Economy,,United Airlines
+EXP-001,Lodging,2026-05-10,SEA,,0,Standard,2,Marriott Seattle
+EXP-001,Ground Transport,2026-05-11,SEA,,12,UberX,,Uber
+EXP-002,Airfare,2026-05-15,JFK,MIA,1281,Business,,American Airlines
+EXP-002,Lodging,2026-05-15,MIA,,0,Deluxe,3,Biltmore Miami
+EXP-003,Ground Transport,2026-05-20,LAX,,8,Lyft,,Lyft
