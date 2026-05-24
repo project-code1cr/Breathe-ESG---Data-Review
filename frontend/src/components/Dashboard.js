@@ -33,7 +33,7 @@ function Dashboard({ companyId }) {
     return <div className="text-center py-12">No data available</div>;
   }
 
-  const totalCO2e = (stats.total_co2e_kg / 1000).toFixed(2); // Convert to tonnes
+  const totalCO2e = (parseFloat(stats.total_co2e_kg) / 1000).toFixed(2); // Convert to tonnes
 
   return (
     <div className="space-y-6">

@@ -105,7 +105,7 @@ class NormalizedEmissionViewSet(viewsets.ModelViewSet):
         """Analyst approves an emission record"""
         emission = self.get_object()
         emission.approval_status = 'APPROVED'
-        emission.approved_by = request.user
+        emission.approved_by = request.user if request.user.is_authenticated else None
         emission.approved_at = timezone.now()
         emission.save()
         
@@ -114,7 +114,7 @@ class NormalizedEmissionViewSet(viewsets.ModelViewSet):
             company=emission.company,
             action='APPROVED',
             related_emission=emission,
-            user=request.user,
+            user=request.user if request.user.is_authenticated else None,
             reason=request.data.get('reason', '')
         )
         
@@ -125,7 +125,7 @@ class NormalizedEmissionViewSet(viewsets.ModelViewSet):
         """Analyst rejects an emission record"""
         emission = self.get_object()
         emission.approval_status = 'REJECTED'
-        emission.approved_by = request.user
+        emission.approved_by = request.user if request.user.is_authenticated else None
         emission.approved_at = timezone.now()
         emission.save()
         
@@ -133,7 +133,7 @@ class NormalizedEmissionViewSet(viewsets.ModelViewSet):
             company=emission.company,
             action='REJECTED',
             related_emission=emission,
-            user=request.user,
+            user=request.user if request.user.is_authenticated else None,
             reason=request.data.get('reason', 'No reason provided')
         )
         
@@ -151,7 +151,7 @@ class NormalizedEmissionViewSet(viewsets.ModelViewSet):
             company=emission.company,
             action='FLAGGED',
             related_emission=emission,
-            user=request.user,
+            user=request.user if request.user.is_authenticated else None,
             reason=f"Flagged: {emission.flagged_anomaly}"
         )
         
@@ -168,7 +168,7 @@ class NormalizedEmissionViewSet(viewsets.ModelViewSet):
             company=emission.company,
             action='NOTES_ADDED',
             related_emission=emission,
-            user=request.user,
+            user=request.user if request.user.is_authenticated else None,
             reason=emission.analyst_notes
         )
         

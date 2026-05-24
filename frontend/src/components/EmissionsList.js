@@ -127,7 +127,7 @@ function EmissionsList({ companyId }) {
                   {emission.quantity_value} {emission.quantity_unit}
                 </td>
                 <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                  {emission.quantity_kg_co2e?.toFixed(2) || 'N/A'}
+                  {emission.quantity_kg_co2e ? parseFloat(emission.quantity_kg_co2e).toFixed(2) : 'N/A'}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-700">{emission.scope_display}</td>
                 <td className="px-6 py-4 text-sm">
@@ -211,7 +211,7 @@ function EmissionDetailPanel({ emission, onClose, onApprove, onReject, onFlag })
             <DetailRow label="Category" value={emission.category_display} />
             <DetailRow label="Scope" value={emission.scope_display} />
             <DetailRow label="Quantity" value={`${emission.quantity_value} ${emission.quantity_unit}`} />
-            <DetailRow label="CO₂e (kg)" value={emission.quantity_kg_co2e?.toFixed(4) || 'N/A'} />
+            <DetailRow label="CO₂e (kg)" value={emission.quantity_kg_co2e ? parseFloat(emission.quantity_kg_co2e).toFixed(4) : 'N/A'} />
             <DetailRow label="Activity Date" value={emission.activity_date} />
             {emission.facility && <DetailRow label="Facility" value={emission.facility} />}
             {emission.vendor_supplier && <DetailRow label="Vendor" value={emission.vendor_supplier} />}
