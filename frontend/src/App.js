@@ -7,7 +7,10 @@ import { Menu, Upload, BarChart3 } from 'lucide-react';
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [companies, setCompanies] = useState([]);
-  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [selectedCompany, setSelectedCompany] = useState(() => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('breathe_selected_company');
+  });
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
@@ -29,10 +32,18 @@ function App() {
       console.log('Companies list after parsing:', companiesList);
       setCompanies(Array.isArray(companiesList) ? companiesList : []);
       if (Array.isArray(companiesList) && companiesList.length > 0) {
-        console.log('Setting selected company to:', companiesList[0].id);
-        setSelectedCompany(companiesList[0].id);
+        const storedCompany = localStorage.getItem('breathe_selected_company');
+        const isValidStoredCompany = companiesList.some((company) => company.id === storedCompany);
+        if (isValidStoredCompany) {
+          setSelectedCompany(storedCompany);
+        } else if (selectedCompany && !companiesList.some((company) => company.id === selectedCompany)) {
+          setSelectedCompany(null);
+          localStorage.removeItem('breathe_selected_company');
+        }
       } else {
         console.log('No companies found in list');
+        setSelectedCompany(null);
+        localStorage.removeItem('breathe_selected_company');
       }
     } catch (error) {
       console.error('Error fetching companies:', error);
@@ -41,7 +52,13 @@ function App() {
   };
 
   const handleCompanyChange = (e) => {
-    setSelectedCompany(e.target.value);
+    const value = e.target.value;
+    setSelectedCompany(value);
+    if (value) {
+      localStorage.setItem('breathe_selected_company', value);
+    } else {
+      localStorage.removeItem('breathe_selected_company');
+    }
   };
 
   
@@ -133,7 +150,7 @@ function App() {
           ) : (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg">
-                No companies available. Please add a company first.
+                Please select a company to continue.
               </p>
             </div>
           )}
