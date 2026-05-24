@@ -66,3 +66,17 @@ npm start
 ## Deploy
 
 Use Render for backend and frontend. Set the backend env vars, point the frontend to the API URL, and make sure CORS allows the frontend domain. If you are deploying from scratch, use the commands in `DEPLOYMENT.md`.
+
+### Important: Migrations & Tenant Isolation
+
+This project uses a per-company `owner_token` for device-scoped tenant isolation. To ensure private companies and device-based isolation work correctly in production, run migrations on deploy (or before first run).
+
+Recommended Render Start Command (runs migrations automatically on deploy):
+
+```bash
+python3 manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+```
+
+If you prefer CI-driven one-off migrations, add a GitHub Actions workflow that runs `python manage.py migrate` against your production database (set `PROD_DATABASE_URL` as a secret) and trigger it once before your first production deploy.
+
+Note: Back up your production database before applying migrations.
