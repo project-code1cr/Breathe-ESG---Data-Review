@@ -126,5 +126,5 @@ REST_FRAMEWORK = {
 }
 
 # CORS Configuration
-CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,https://breathe-esg-data-review.vercel.app').split(',')
 CORS_ALLOWED_ORIGINS = [h.strip() for h in CORS_ALLOWED_ORIGINS]
