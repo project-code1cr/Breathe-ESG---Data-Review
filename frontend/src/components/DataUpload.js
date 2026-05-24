@@ -47,7 +47,7 @@ function DataUpload({ companyId }) {
 
       setMessage({
         type: 'success',
-        text: `Successfully ingested ${response.data.ingested_count} records. ${response.data.failed_count} failed.`,
+        text: `Successfully ingested ${response.data.ingested_count} records. ${response.data.failed_count} failed.${response.data.errors && response.data.errors.length > 0 ? ' Errors: ' + response.data.errors.map(e => `Row ${e.row}: ${e.error}`).join('; ') : ''}`,
       });
       setRawData('');
     } catch (error) {

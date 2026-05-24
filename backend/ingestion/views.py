@@ -232,6 +232,7 @@ class UploadDataView(APIView):
             emission_ids = []
             
             # Process each row
+            parse_errors = []
             for row_idx, row_data in enumerate(data_rows):
                 try:
                     # Create raw ingestion record
@@ -239,7 +240,7 @@ class UploadDataView(APIView):
                         company=company,
                         source_type=source_type,
                         raw_data=row_data,
-                        uploaded_by=request.user,
+                        uploaded_by=request.user if request.user.is_authenticated else None,
                         status='PARSED'
                     )
                     
@@ -248,6 +249,7 @@ class UploadDataView(APIView):
                     
                     for emission_data in parsed_emissions:
                         emission_data.company = company
+                        emission_data.source_type = source_type
                         emission_data.data_source_ingestion = raw_ingestion
                         emission_data.save()
                         emission_ids.append(str(emission_data.id))
@@ -257,7 +259,7 @@ class UploadDataView(APIView):
                         company=company,
                         action='INGESTED',
                         related_ingestion=raw_ingestion,
-                        user=request.user,
+                        user=request.user if request.user.is_authenticated else None,
                         reason=f"Ingested {len(parsed_emissions)} emission record(s)"
                     )
                     
@@ -265,13 +267,16 @@ class UploadDataView(APIView):
                 
                 except Exception as e:
                     failed_count += 1
-                    print(f"Row {row_idx} parse error: {str(e)}")
+                    error_msg = str(e)
+                    parse_errors.append({'row': row_idx, 'error': error_msg})
+                    print(f"Row {row_idx} parse error: {error_msg}")
             
             return Response({
                 'status': 'success',
                 'ingested_count': ingested_count,
                 'failed_count': failed_count,
-                'emission_ids': emission_ids
+                'emission_ids': emission_ids,
+                'errors': parse_errors if parse_errors else []
             }, status=status.HTTP_201_CREATED)
         
         except Exception as e:
