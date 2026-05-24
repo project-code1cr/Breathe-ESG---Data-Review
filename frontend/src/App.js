@@ -124,6 +124,7 @@ function App() {
             className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             disabled={initializing}
           >
+            <option value="">Select a company</option>
             {initializing ? (
               <option value="">Loading...</option>
             ) : companies.length === 0 ? (
