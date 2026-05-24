@@ -19,7 +19,8 @@ function App() {
     try {
       console.log('Fetching companies...');
       // Test with direct fetch first
-      const response = await fetch('http://localhost:8000/api/companies/');
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://breathe-esg-data-review-1.onrender.com/api';
+      const response = await fetch(`${apiUrl}/companies/`);
       console.log('Fetch response status:', response.status);
       const data = await response.json();
       console.log('Fetch response data:', data);
