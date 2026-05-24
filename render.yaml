@@ -13,7 +13,7 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: ALLOWED_HOSTS
-        value: breathe-esg-api.onrender.com
+        value: breathe-esg-data-review-1.onrender.com,breathe-esg-api.onrender.com,localhost,127.0.0.1
       - key: CORS_ALLOWED_ORIGINS
         value: https://breathe-esg-frontend.onrender.com
       - key: DATABASE_URL
