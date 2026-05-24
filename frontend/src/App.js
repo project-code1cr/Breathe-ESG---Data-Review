@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Dashboard from './components/Dashboard';
 import EmissionsList from './components/EmissionsList';
 import DataUpload from './components/DataUpload';
-import { Menu, Upload, BarChart3, Plus } from 'lucide-react';
+import { Menu, Upload, BarChart3 } from 'lucide-react';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -44,30 +44,7 @@ function App() {
     setSelectedCompany(e.target.value);
   };
 
-  const createCompany = async () => {
-    const name = prompt('Company name:');
-    if (!name) return;
-    const industry = prompt('Industry (optional):') || '';
-    const headquarters = prompt('Headquarters (optional):') || '';
-    try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://breathe-esg-data-review-1.onrender.com/api';
-      const resp = await fetch(`${apiUrl}/companies/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, industry, headquarters }),
-      });
-      if (!resp.ok) {
-        const err = await resp.text();
-        alert('Failed to create company: ' + err);
-        return;
-      }
-      await fetchCompanies();
-      alert('Company created');
-    } catch (err) {
-      console.error(err);
-      alert('Error creating company');
-    }
-  };
+  
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -125,7 +102,6 @@ function App() {
           </h1>
 
           {/* Company selector */}
-          <div className="flex items-center gap-2">
           <select
             value={selectedCompany || ''}
             onChange={handleCompanyChange}
@@ -138,14 +114,6 @@ function App() {
               </option>
             ))}
           </select>
-          <button
-            onClick={createCompany}
-            title="Add company"
-            className="ml-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            <Plus size={16} />
-          </button>
-          </div>
         </header>
 
         {/* Content */}
