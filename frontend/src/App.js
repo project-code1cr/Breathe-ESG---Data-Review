@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Dashboard from './components/Dashboard';
 import EmissionsList from './components/EmissionsList';
 import DataUpload from './components/DataUpload';
+import api from './api';
 import { Menu, Upload, BarChart3 } from 'lucide-react';
 
 function App() {
@@ -12,44 +13,44 @@ function App() {
     return localStorage.getItem('breathe_selected_company');
   });
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [initializing, setInitializing] = useState(true);
 
-  const fetchCompanies = useCallback(async () => {
+  const ensureCompany = useCallback(async () => {
     try {
-      console.log('Fetching companies...');
-      // Test with direct fetch first
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://breathe-esg-data-review-1.onrender.com/api';
-      const response = await fetch(`${apiUrl}/companies/`);
-      console.log('Fetch response status:', response.status);
-      const data = await response.json();
-      console.log('Fetch response data:', data);
-      
-      const companiesList = data.results || data;
-      console.log('Companies list after parsing:', companiesList);
-      setCompanies(Array.isArray(companiesList) ? companiesList : []);
-      if (Array.isArray(companiesList) && companiesList.length > 0) {
-        const storedCompany = localStorage.getItem('breathe_selected_company');
-        const isValidStoredCompany = companiesList.some((company) => company.id === storedCompany);
-        if (isValidStoredCompany) {
-          setSelectedCompany(storedCompany);
-        } else {
-          setSelectedCompany(null);
-          localStorage.removeItem('breathe_selected_company');
-        }
+      const storedCompanyId = localStorage.getItem('breathe_selected_company');
+
+      if (storedCompanyId) {
+        const response = await api.get(`/companies/${storedCompanyId}/`);
+        const company = response.data;
+        setCompanies([company]);
+        setSelectedCompany(company.id);
       } else {
-        console.log('No companies found in list');
-        setSelectedCompany(null);
-        localStorage.removeItem('breathe_selected_company');
+        const newCompanyName = `My Company ${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+        const response = await api.post('/companies/', {
+          name: newCompanyName,
+          industry: 'General',
+          headquarters: 'Unknown',
+        });
+
+        const company = response.data;
+        setCompanies([company]);
+        setSelectedCompany(company.id);
+        localStorage.setItem('breathe_selected_company', company.id);
       }
     } catch (error) {
-      console.error('Error fetching companies:', error);
+      console.error('Error ensuring company:', error);
       setCompanies([]);
+      setSelectedCompany(null);
+      localStorage.removeItem('breathe_selected_company');
+    } finally {
+      setInitializing(false);
     }
   }, []);
 
   useEffect(() => {
-    console.log('App mounted, fetching companies...');
-    fetchCompanies();
-  }, [fetchCompanies]);
+    console.log('App mounted, ensuring private company...');
+    ensureCompany();
+  }, [ensureCompany]);
 
   const handleCompanyChange = (e) => {
     const value = e.target.value;
@@ -121,13 +122,19 @@ function App() {
             value={selectedCompany || ''}
             onChange={handleCompanyChange}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={initializing}
           >
-            <option value="">Select a company</option>
-            {companies.map((company) => (
-              <option key={company.id} value={company.id}>
-                {company.name}
-              </option>
-            ))}
+            {initializing ? (
+              <option value="">Loading...</option>
+            ) : companies.length === 0 ? (
+              <option value="">No company available</option>
+            ) : (
+              companies.map((company) => (
+                <option key={company.id} value={company.id}>
+                  {company.name}
+                </option>
+              ))
+            )}
           </select>
         </header>
 
