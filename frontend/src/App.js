@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Dashboard from './components/Dashboard';
 import EmissionsList from './components/EmissionsList';
 import DataUpload from './components/DataUpload';
@@ -13,12 +13,7 @@ function App() {
   });
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  useEffect(() => {
-    console.log('App mounted, fetching companies...');
-    fetchCompanies();
-  }, []);
-
-  const fetchCompanies = async () => {
+  const fetchCompanies = useCallback(async () => {
     try {
       console.log('Fetching companies...');
       // Test with direct fetch first
@@ -49,7 +44,12 @@ function App() {
       console.error('Error fetching companies:', error);
       setCompanies([]);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    console.log('App mounted, fetching companies...');
+    fetchCompanies();
+  }, [fetchCompanies]);
 
   const handleCompanyChange = (e) => {
     const value = e.target.value;
@@ -60,8 +60,6 @@ function App() {
       localStorage.removeItem('breathe_selected_company');
     }
   };
-
-  
 
   return (
     <div className="flex h-screen bg-gray-50">
