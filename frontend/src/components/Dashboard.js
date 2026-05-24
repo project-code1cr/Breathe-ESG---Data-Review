@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import api from '../api';
 import { Activity, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
 
@@ -6,13 +6,7 @@ function Dashboard({ companyId }) {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchStats();
-    const interval = setInterval(fetchStats, 5000); // Refresh every 5 seconds
-    return () => clearInterval(interval);
-  }, [companyId]);
-
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const response = await api.get('/dashboard/summary/', {
         params: { company_id: companyId },
@@ -23,7 +17,13 @@ function Dashboard({ companyId }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [companyId]);
+
+  useEffect(() => {
+    fetchStats();
+    const interval = setInterval(fetchStats, 5000); // Refresh every 5 seconds
+    return () => clearInterval(interval);
+  }, [fetchStats]);
 
   if (loading) {
     return <div className="text-center py-12">Loading...</div>;

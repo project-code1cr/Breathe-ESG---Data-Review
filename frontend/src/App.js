@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import api from './api';
 import Dashboard from './components/Dashboard';
 import EmissionsList from './components/EmissionsList';
 import DataUpload from './components/DataUpload';

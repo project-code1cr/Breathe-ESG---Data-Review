@@ -4,7 +4,6 @@ import { Check, X, Flag } from 'lucide-react';
 
 function EmissionsList({ companyId }) {
   const [emissions, setEmissions] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState({
     approval_status: 'PENDING_REVIEW',
     flagged_anomaly: '',
@@ -13,10 +12,9 @@ function EmissionsList({ companyId }) {
 
   useEffect(() => {
     fetchEmissions();
-  }, [companyId, filters]);
+  }, [companyId, filters, fetchEmissions]);
 
   const fetchEmissions = async () => {
-    setLoading(true);
     try {
       const params = {
         company: companyId,
@@ -28,8 +26,6 @@ function EmissionsList({ companyId }) {
       setEmissions(response.data.results || response.data);
     } catch (error) {
       console.error('Error fetching emissions:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
