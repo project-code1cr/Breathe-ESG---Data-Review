@@ -10,7 +10,6 @@ import json
 from decimal import Decimal
 from datetime import datetime
 from io import StringIO
-import pandas as pd
 from abc import ABC, abstractmethod
 
 from .models import (

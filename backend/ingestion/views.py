@@ -9,7 +9,6 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from django.db.models import Q, Count, Sum, Avg
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
 from .models import (
@@ -48,13 +47,23 @@ class RawIngestionViewSet(viewsets.ModelViewSet):
     """List raw ingestions and their parse status"""
     queryset = RawIngestion.objects.all()
     serializer_class = RawIngestionSerializer
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['company', 'source_type', 'status']
+    filter_backends = [OrderingFilter]
     ordering_fields = ['uploaded_at']
     ordering = ['-uploaded_at']
     
     def get_queryset(self):
-        return RawIngestion.objects.all().select_related('company', 'uploaded_by')
+        qs = RawIngestion.objects.all().select_related('company', 'uploaded_by')
+        # Manual filtering from query params
+        company_id = self.request.query_params.get('company')
+        if company_id:
+            qs = qs.filter(company_id=company_id)
+        source_type = self.request.query_params.get('source_type')
+        if source_type:
+            qs = qs.filter(source_type=source_type)
+        status_val = self.request.query_params.get('status')
+        if status_val:
+            qs = qs.filter(status=status_val)
+        return qs
 
 
 class NormalizedEmissionViewSet(viewsets.ModelViewSet):
@@ -64,16 +73,32 @@ class NormalizedEmissionViewSet(viewsets.ModelViewSet):
     """
     queryset = NormalizedEmission.objects.all()
     serializer_class = NormalizedEmissionSerializer
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['company', 'scope', 'category', 'approval_status', 'flagged_anomaly']
+    filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['analyst_notes', 'vendor_supplier', 'facility', 'origin', 'destination']
     ordering_fields = ['activity_date', 'quantity_kg_co2e', 'created_at']
     ordering = ['-created_at']
     
     def get_queryset(self):
-        return NormalizedEmission.objects.all().select_related(
+        qs = NormalizedEmission.objects.all().select_related(
             'company', 'approved_by', 'data_source_ingestion'
         )
+        # Manual filtering from query params
+        company_id = self.request.query_params.get('company')
+        if company_id:
+            qs = qs.filter(company_id=company_id)
+        scope = self.request.query_params.get('scope')
+        if scope:
+            qs = qs.filter(scope=scope)
+        category = self.request.query_params.get('category')
+        if category:
+            qs = qs.filter(category=category)
+        approval_status = self.request.query_params.get('approval_status')
+        if approval_status:
+            qs = qs.filter(approval_status=approval_status)
+        flagged_anomaly = self.request.query_params.get('flagged_anomaly')
+        if flagged_anomaly:
+            qs = qs.filter(flagged_anomaly=flagged_anomaly)
+        return qs
     
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):
@@ -154,13 +179,23 @@ class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
     """Immutable audit trail"""
     queryset = AuditLog.objects.all()
     serializer_class = AuditLogSerializer
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['company', 'action', 'user']
+    filter_backends = [OrderingFilter]
     ordering_fields = ['timestamp']
     ordering = ['-timestamp']
     
     def get_queryset(self):
-        return AuditLog.objects.all().select_related('company', 'user', 'related_emission', 'related_ingestion')
+        qs = AuditLog.objects.all().select_related('company', 'user', 'related_emission', 'related_ingestion')
+        # Manual filtering from query params
+        company_id = self.request.query_params.get('company')
+        if company_id:
+            qs = qs.filter(company_id=company_id)
+        action = self.request.query_params.get('action')
+        if action:
+            qs = qs.filter(action=action)
+        user_id = self.request.query_params.get('user')
+        if user_id:
+            qs = qs.filter(user_id=user_id)
+        return qs
 
 
 class UploadDataView(APIView):

@@ -12,18 +12,31 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
+    console.log('App mounted, fetching companies...');
     fetchCompanies();
   }, []);
 
   const fetchCompanies = async () => {
     try {
-      const response = await api.get('/companies/');
-      setCompanies(response.data);
-      if (response.data.length > 0) {
-        setSelectedCompany(response.data[0].id);
+      console.log('Fetching companies...');
+      // Test with direct fetch first
+      const response = await fetch('http://localhost:8000/api/companies/');
+      console.log('Fetch response status:', response.status);
+      const data = await response.json();
+      console.log('Fetch response data:', data);
+      
+      const companiesList = data.results || data;
+      console.log('Companies list after parsing:', companiesList);
+      setCompanies(Array.isArray(companiesList) ? companiesList : []);
+      if (Array.isArray(companiesList) && companiesList.length > 0) {
+        console.log('Setting selected company to:', companiesList[0].id);
+        setSelectedCompany(companiesList[0].id);
+      } else {
+        console.log('No companies found in list');
       }
     } catch (error) {
       console.error('Error fetching companies:', error);
+      setCompanies([]);
     }
   };
 
