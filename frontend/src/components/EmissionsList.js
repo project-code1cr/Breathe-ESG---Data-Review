@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../api';
 import { Check, X, Flag } from 'lucide-react';
 
@@ -10,11 +10,7 @@ function EmissionsList({ companyId }) {
   });
   const [selectedEmission, setSelectedEmission] = useState(null);
 
-  useEffect(() => {
-    fetchEmissions();
-  }, [companyId, filters, fetchEmissions]);
-
-  const fetchEmissions = async () => {
+  const fetchEmissions = useCallback(async () => {
     try {
       const params = {
         company: companyId,
@@ -27,7 +23,11 @@ function EmissionsList({ companyId }) {
     } catch (error) {
       console.error('Error fetching emissions:', error);
     }
-  };
+  }, [companyId, filters]);
+
+  useEffect(() => {
+    fetchEmissions();
+  }, [fetchEmissions]);
 
   const handleApprove = async (emission) => {
     try {
